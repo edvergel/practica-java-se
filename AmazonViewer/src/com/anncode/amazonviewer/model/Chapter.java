@@ -2,6 +2,10 @@ package com.anncode.amazonviewer.model;
 
 import java.util.ArrayList;
 
+/**
+ * Hereda de {@link Movie}
+ * @see Film
+ */
 public class Chapter extends Movie {
 	
 	
@@ -53,7 +57,7 @@ public class Chapter extends Movie {
 	
 	
 	public static ArrayList<Chapter> makeChaptersList(Serie serie) {
-		ArrayList<Chapter> chapters = new ArrayList();
+		ArrayList<Chapter> chapters = new ArrayList<>();
 		
 		for (int i = 1; i <= 5; i++) {
 			chapters.add(new Chapter("Capituo "+i, "genero "+i, "creator" +i, 45, (short)(2017+i), i, serie));
@@ -61,4 +65,34 @@ public class Chapter extends Movie {
 		
 		return chapters;
 	}
+
+	@Override
+	public void view() {
+		
+		super.view(); // Super Invoca al metodo de la clase padre (no es obligatorio)
+
+		ArrayList<Chapter> chapters = getSerie().getChapters();
+		int chapterViewedCounter = 0;
+		for (Chapter chapter : chapters) {
+			if (chapter.getIsViewed()) {
+				chapterViewedCounter++;
+			}
+		}
+
+		if (chapterViewedCounter == chapters.size()) {
+			getSerie().view();
+		}
+
+		// Opcion con lambda
+		/*long chapterViewedCounter = chapters.stream()
+			.filter(chapter -> chapter.getIsViewed())
+			.count();*/
+	}	
+
 }
+
+
+
+
+
+

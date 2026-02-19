@@ -31,7 +31,7 @@ public class Magazine extends Publication {
 	}
 	
 	public static ArrayList<Magazine> makeMagazineList() {
-		ArrayList<Magazine> magazines = new ArrayList();
+		ArrayList<Magazine> magazines = new ArrayList<>();
 		String[] authors = new String[3];
 		for (int i = 0; i < 3; i++) {
 			authors[i] = "author "+i;

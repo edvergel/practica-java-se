@@ -49,7 +49,7 @@ public class Serie extends Film {
 	}
 
 	public static ArrayList<Serie> makeSeriesList() {
-		ArrayList<Serie> series = new ArrayList();
+		ArrayList<Serie> series = new ArrayList<>();
 		
 		for (int i = 1; i <= 5; i++) {
 			Serie serie = new Serie("Serie "+i, "genero "+i, "creador "+i, 1200, 5);
@@ -59,6 +59,11 @@ public class Serie extends Film {
 		}
 		
 		return series;
+	}
+
+	@Override
+	public void view() {
+		setViewed(true);
 	}
 	
 }

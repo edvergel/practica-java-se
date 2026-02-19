@@ -7,26 +7,73 @@ import java.util.Scanner;
 
 import com.anncode.amazonviewer.model.Book;
 import com.anncode.amazonviewer.model.Chapter;
+import com.anncode.amazonviewer.model.Film;
 import com.anncode.amazonviewer.model.Magazine;
 import com.anncode.amazonviewer.model.Movie;
 import com.anncode.amazonviewer.model.Serie;
 import com.anncode.makereport.Report;
 import com.anncode.util.AmazonUtil;
 
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.SQLException;
+import oracle.jdbc.driver.OracleDriver; // Esta es la prueba de fuego
+
+/**
+ * <h1>AmazonViewer</h1>
+ * AmazonViewer es un programa que permite visualizar Movies, Series con sus respectivos
+ * Chapters, Books y Magazines. Te permite generar reportes generales y con fecha al dia.
+ * <p>
+ * Existen algunas reglas como que todos los elementos pueden ser visualizados o leidos a excepcion
+ * de las Magazines. Estas solo pueden ser vistas a modo de exposicion sin ser leidas.
+ * 
+ * @author anncode
+ * @version 1.1
+ * @since 2018
+ * 
+ */
 public class Main {
 
 	public static void main(String[] args) {
-		// TODO Auto-generated method stub
 		
 		showMenu();
 
 	}
 	
 	public static void showMenu() {
+
+
+		String url = "jdbc:oracle:thin:@opli72.open.com.co:1521/DEVTEC80"; 
+        String user = "sfbk0800";
+        String password = "Akda$had#had9857RT";
+
+        System.out.println("Intentando conectar a Oracle...");
+
+		/*try {
+			Class.forName("oracle.jdbc.driver.OracleDriver");
+			System.out.println("Driver registrado manualmente con éxito");
+		} catch (ClassNotFoundException e) {
+			System.out.println("⚠️ ¡Error crítico! El archivo JAR no está en el Classpath.");
+			e.printStackTrace();
+		}*/
+
+        try (Connection con = DriverManager.getConnection(url, user, password)) {
+            if (con != null) {
+                System.out.println("✅ ¡Conexión exitosa!");
+                System.out.println("Base de Datos: " + con.getMetaData().getDatabaseProductName());
+            }
+        } catch (SQLException e) {
+            System.err.println("❌ Error de conexión:");
+            e.printStackTrace();
+        }
+
+
+
+
 		int exit = 0;
 		do {
 			
-			System.out.println("BIENVENIDOS AMAZON VIEWER");
+			System.out.println(">>> BIENVENIDOS AMAZON VIEWER");
 			System.out.println("");
 			System.out.println("Selecciona el número de la opción deseada");
 			System.out.println("1. Movies");
@@ -105,18 +152,7 @@ public class Main {
 			}
 			if (response > 0) {
 				Movie movieSelected = movies.get(response-1);
-				movieSelected.setViewed(true);
-				Date dateI = movieSelected.startToSee(new Date());
-				
-				for (int i = 0; i < 100000; i++) {
-					System.out.println("..........");
-				}
-				
-				//Termine de verla
-				movieSelected.stopToSee(dateI, new Date());
-				System.out.println();
-				System.out.println("Viste: " + movieSelected);
-				System.out.println("Por: " + movieSelected.getTimeViewed() + " milisegundos");
+				movieSelected.view();
 			}
 			
 			
@@ -181,18 +217,7 @@ public class Main {
 			
 			if(response > 0) {
 				Chapter chapterSelected = chaptersOfSerieSelected.get(response-1);
-				chapterSelected.setViewed(true);
-				Date dateI = chapterSelected.startToSee(new Date());
-				
-				for (int i = 0; i < 100000; i++) {
-					System.out.println("..........");
-				}
-				
-				//Termine de verla
-				chapterSelected.stopToSee(dateI, new Date());
-				System.out.println();
-				System.out.println("Viste: " + chapterSelected);
-				System.out.println("Por: " + chapterSelected.getTimeViewed() + " milisegundos");
+				chapterSelected.view();
 			}
 		}while(exit !=0);
 	}
@@ -223,18 +248,7 @@ public class Main {
 			
 			if(response > 0) {
 				Book bookSelected = books.get(response-1);
-				bookSelected.setReaded(true);
-				Date dateI = bookSelected.startToSee(new Date());
-				
-				for (int i = 0; i < 100000; i++) {
-					System.out.println("..........");
-				}
-				
-				//Termine de verla
-				bookSelected.stopToSee(dateI, new Date());
-				System.out.println();
-				System.out.println("Leíste: " + bookSelected);
-				System.out.println("Por: " + bookSelected.getTimeReaded() + " milisegundos");
+				bookSelected.view();
 			}
 			
 		}while(exit !=0);
