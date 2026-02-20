@@ -17,7 +17,7 @@ import com.anncode.util.AmazonUtil;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import oracle.jdbc.driver.OracleDriver; // Esta es la prueba de fuego
+import oracle.jdbc.driver.OracleDriver; // Esta es la prueba de fuego222
 
 /**
  * <h1>AmazonViewer</h1>
@@ -43,9 +43,12 @@ public class Main {
 	public static void showMenu() {
 
 
-		String url = "jdbc:oracle:thin:@opli72.open.com.co:1521/DEVTEC80"; 
+		/*String url = "jdbc:oracle:thin:@opli72.open.com.co:1521/DEVTEC80"; 
         String user = "sfbk0800";
-        String password = "Akda$had#had9857RT";
+        String password = "Akda$had#had9857RT";*/
+		String url = "jdbc:oracle:thin:@localhost:1521/FREEPDB1";
+		String user = "evergel_dev";
+		String password = "DevPass2026";
 
         System.out.println("Intentando conectar a Oracle...");
 
