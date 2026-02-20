@@ -1,6 +1,7 @@
 package com.anncode.amazonviewer.model;
 
 import java.util.ArrayList;
+import com.anncode.amazonviewer.dao.DAOManager;
 
 /**
  * Hereda de {@link Movie}
@@ -12,12 +13,14 @@ public class Chapter extends Movie {
 	private int id;
 	private int sessionNumber;
 	private Serie serie;
+	private static int nextId = 201;  // Contador para asignar IDs únicos (200+ para diferenciar de series y movies)
 
 	public Chapter(String title, String genre, String creator, int duration, short year, int sessionNumber, Serie serie) {
 		super(title, genre, creator, duration, year);
 		// TODO Auto-generated constructor stub
 		this.setSessionNumber(sessionNumber);
 		this.setSerie(serie);
+		this.id = nextId++;  // Asignar ID único y incrementar el contador
 	}
 	
 	@Override
@@ -71,22 +74,18 @@ public class Chapter extends Movie {
 		
 		super.view(); // Super Invoca al metodo de la clase padre (no es obligatorio)
 
-		ArrayList<Chapter> chapters = getSerie().getChapters();
-		int chapterViewedCounter = 0;
-		for (Chapter chapter : chapters) {
-			if (chapter.getIsViewed()) {
-				chapterViewedCounter++;
-			}
+		// Guardar capítulo visto en la base de datos
+		try {
+			DAOManager.getInstance().getViewedDAO().setChapterViewed(this.id);
+		} catch (Exception e) {
+			System.err.println("⚠️ Advertencia: No se pudo guardar el capítulo en la base de datos");
 		}
 
-		if (chapterViewedCounter == chapters.size()) {
-			getSerie().view();
+		// ✅ CORREGIDO: Verificar en BD si TODOS los capítulos están vistos
+		// (No verificar en memoria, que puede estar desincronizada)
+		if (getSerie().areAllChaptersViewedInDatabase()) {
+			getSerie().markAsViewed();
 		}
-
-		// Opcion con lambda
-		/*long chapterViewedCounter = chapters.stream()
-			.filter(chapter -> chapter.getIsViewed())
-			.count();*/
 	}	
 
 }

@@ -2,6 +2,7 @@ package com.anncode.amazonviewer.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import com.anncode.amazonviewer.dao.DAOManager;
 
 /**
  * Hereda de {@link Film}
@@ -11,11 +12,13 @@ public class Movie extends Film implements IVisualizable {
 	
 	private int id;
 	private int timeViewed;
+	private static int nextId = 1;  // Contador para asignar IDs únicos automáticamente
 	
 	
 	public Movie(String title, String genre, String creator, int duration, short year) {
 		super(title, genre, creator, duration);
 		setYear(year);
+		this.id = nextId++;  // Asignar ID único y incrementar el contador
 	}
 
 	
@@ -78,6 +81,19 @@ public class Movie extends Film implements IVisualizable {
 	}
 
 	/**
+	 * Recarga el estado de esta película desde la base de datos
+	 * Útil para sincronizar el estado en memoria con la BD
+	 */
+	public void refreshFromDatabase() {
+		try {
+			boolean isViewed = DAOManager.getInstance().getViewedDAO().getMovieViewed(this.id);
+			setViewed(isViewed);
+		} catch (Exception e) {
+			System.err.println("⚠️ Advertencia: No se pudo recargar el estado de la película desde BD");
+		}
+	}
+
+	/**
 	 * {@inheritDoc}
 	 */
 	@Override
@@ -85,7 +101,7 @@ public class Movie extends Film implements IVisualizable {
 		setViewed(true);
 		Date dateI = startToSee(new Date());
 		
-		for (int i = 0; i < 100000; i++) {
+		for (int i = 0; i < 10000; i++) {
 			System.out.println("..........");
 		}
 		
@@ -94,6 +110,13 @@ public class Movie extends Film implements IVisualizable {
 		System.out.println();
 		System.out.println("Viste: " + toString());
 		System.out.println("Por: " + getTimeViewed() + " milisegundos");
+		
+		// Guardar en la base de datos
+		try {
+			DAOManager.getInstance().getViewedDAO().setMovieViewed(this.id);
+		} catch (Exception e) {
+			System.err.println("⚠️ Advertencia: No se pudo guardar el estado en la base de datos");
+		}
 	}
 	
 }

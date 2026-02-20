@@ -16,7 +16,7 @@ package com.anncode.amazonviewer.model;
 public abstract class Film {
 	
 	private String title;
-	private String genre;
+	private String genre;	// Mejora una lista, ya que una pelicula puede tener mas de un genero
 	private String creator;
 	private int duration;
 	private short year;

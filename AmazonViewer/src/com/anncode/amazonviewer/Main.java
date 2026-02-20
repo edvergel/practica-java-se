@@ -13,6 +13,8 @@ import com.anncode.amazonviewer.model.Movie;
 import com.anncode.amazonviewer.model.Serie;
 import com.anncode.makereport.Report;
 import com.anncode.util.AmazonUtil;
+import com.anncode.amazonviewer.dao.DAOManager;
+import com.anncode.amazonviewer.dao.ViewedDAO;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -42,36 +44,34 @@ public class Main {
 	
 	public static void showMenu() {
 
-
-		/*String url = "jdbc:oracle:thin:@opli72.open.com.co:1521/DEVTEC80"; 
+		String url = "jdbc:oracle:thin:@opli72.open.com.co:1521/DEVTEC80"; 
         String user = "sfbk0800";
-        String password = "Akda$had#had9857RT";*/
-		String url = "jdbc:oracle:thin:@localhost:1521/FREEPDB1";
+        String password = "Akda$had#had9857RT";
+		/*String url = "jdbc:oracle:thin:@localhost:1521/FREEPDB1";
 		String user = "evergel_dev";
-		String password = "DevPass2026";
+		String password = "DevPass2026";*/
 
         System.out.println("Intentando conectar a Oracle...");
 
-		/*try {
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-			System.out.println("Driver registrado manualmente con éxito");
-		} catch (ClassNotFoundException e) {
-			System.out.println("⚠️ ¡Error crítico! El archivo JAR no está en el Classpath.");
-			e.printStackTrace();
-		}*/
-
-        try (Connection con = DriverManager.getConnection(url, user, password)) {
+		Connection con = null;
+        try {
+            con = DriverManager.getConnection(url, user, password);
             if (con != null) {
                 System.out.println("✅ ¡Conexión exitosa!");
                 System.out.println("Base de Datos: " + con.getMetaData().getDatabaseProductName());
+                
+                // Inicializar DAOManager con la conexión
+                DAOManager.getInstance().initialize(con);			// Obtiene la instancia (sino existe la crea) 
+																	// Luego le pasa la imagen 
+                System.out.println("✅ DAOManager inicializado correctamente");
+                
+                // Cargar estado de visualización desde la base de datos
+                loadViewedState();
             }
         } catch (SQLException e) {
             System.err.println("❌ Error de conexión:");
             e.printStackTrace();
         }
-
-
-
 
 		int exit = 0;
 		do {
@@ -127,8 +127,14 @@ public class Main {
 			
 			
 		}while(exit != 0);
+		
+		// Cerrar conexión al salir
+		if (con != null) {
+			DAOManager.getInstance().closeConnection();
+		}
 	}
 	
+	// Se encarga de cargar la lista de peliculas
 	static ArrayList<Movie> movies = Movie.makeMoviesList();
 	public static void showMovies() {
 		int exit = 1;
@@ -138,10 +144,15 @@ public class Main {
 			System.out.println(":: MOVIES ::");
 			System.out.println();
 			
+			// Refrescar TODAS las películas ANTES de mostrarlas
+			// Esto asegura que siempre muestren el estado más actualizado de la BD
+			for (Movie movie : movies) {
+				movie.refreshFromDatabase();
+			}
+			
 			for (int i = 0; i < movies.size(); i++) { //1. Movie 1
 				System.out.println(i+1 + ". " + movies.get(i).getTitle() + " Visto: " + movies.get(i).isViewed());
 			}
-			
 			System.out.println("0. Regresar al Menu");
 			System.out.println();
 			
@@ -171,6 +182,12 @@ public class Main {
 			System.out.println(":: SERIES ::");
 			System.out.println();
 			
+			// Refrescar TODAS las series ANTES de mostrarlas
+			// Esto asegura que siempre muestren el estado más actualizado de la BD
+			for (Serie serie : series) {
+				serie.refreshFromDatabase();
+			}
+			
 			for (int i = 0; i < series.size(); i++) { //1. Serie 1
 				System.out.println(i+1 + ". " + series.get(i).getTitle() + " Visto: " + series.get(i).isViewed());
 			}
@@ -187,14 +204,15 @@ public class Main {
 			}
 			
 			if(response > 0) {
-				showChapters(series.get(response-1).getChapters());
+				Serie selectedSerie = series.get(response-1);
+				showChapters(selectedSerie.getChapters(), selectedSerie);
 			}
 			
 			
 		}while(exit !=0);
 	}
 	
-	public static void showChapters(ArrayList<Chapter> chaptersOfSerieSelected) {
+	public static void showChapters(ArrayList<Chapter> chaptersOfSerieSelected, Serie serie) {
 		int exit = 1;
 		
 		do {
@@ -216,7 +234,6 @@ public class Main {
 			if(response == 0) {
 				exit = 0;
 			}
-			
 			
 			if(response > 0) {
 				Chapter chapterSelected = chaptersOfSerieSelected.get(response-1);
@@ -365,6 +382,42 @@ public class Main {
 		
 		System.out.println("Reporte Generado");
 		System.out.println();
+	}
+	
+	/**
+	 * Carga el estado de visualización de todos los elementos desde la base de datos
+	 */
+	public static void loadViewedState() {
+		ViewedDAO viewedDAO = DAOManager.getInstance().getViewedDAO();
+		
+		System.out.println("\n📥 Cargando estado de visualización desde la base de datos...\n");
+		
+		// Cargar estado de películas
+		for (Movie movie : movies) {
+			boolean isViewed = viewedDAO.getMovieViewed(movie.getId());
+			movie.setViewed(isViewed);
+		}
+		System.out.println("✅ Películas cargadas");
+		
+		// Cargar estado de series y capítulos
+		for (Serie serie : series) {
+			boolean isSerieViewed = viewedDAO.getSerieViewed(serie.getId());
+			serie.setViewed(isSerieViewed);
+			
+			ArrayList<Chapter> chapters = serie.getChapters();
+			for (Chapter chapter : chapters) {
+				boolean isChapterViewed = viewedDAO.getChapterViewed(chapter.getId());
+				chapter.setViewed(isChapterViewed);
+			}
+		}
+		System.out.println("✅ Series y capítulos cargados");
+		
+		// Cargar estado de libros
+		for (Book book : books) {
+			boolean isViewed = viewedDAO.getBookViewed(book.getId());
+			book.setReaded(isViewed);
+		}
+		System.out.println("✅ Libros cargados\n");
 	}
 	
 }

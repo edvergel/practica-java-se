@@ -6,10 +6,12 @@ import java.util.Date;
 public class Magazine extends Publication {
 	
 	private int id;
+	private static int nextId = 401;  // Contador para asignar IDs únicos (400+ para diferenciar de otros elementos)
 	
 	public Magazine(String title, Date edititionDate, String editorial) {
 		super(title, edititionDate, editorial);
 		// TODO Auto-generated constructor stub
+		this.id = nextId++;  // Asignar ID único y incrementar el contador
 	}
 	
 	public int getId() {

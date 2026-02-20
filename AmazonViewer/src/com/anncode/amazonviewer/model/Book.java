@@ -9,6 +9,7 @@ public class Book extends Publication implements IVisualizable {
 	private String isbn;
 	private boolean readed;
 	private int timeReaded;
+	private static int nextId = 301;  // Contador para asignar IDs únicos (300+ para diferenciar de otros elementos)
 	
 	private ArrayList<Page> pages;
 
@@ -26,6 +27,7 @@ public class Book extends Publication implements IVisualizable {
 		super(title, edititionDate, editorial);
 		setAuthors(authors);
 		this.pages = pages;
+		this.id = nextId++;  // Asignar ID único y incrementar el contador
 	}
 
 
