@@ -3,6 +3,7 @@ package com.anncode.amazonviewer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Scanner;
 
 import com.anncode.amazonviewer.model.Book;
@@ -34,8 +35,9 @@ import oracle.jdbc.driver.OracleDriver; // Esta es la prueba de fuego222
  * @since 2018
  * 
  */
-public class Main {
+public class Main {		
 
+	static List<Movie> movies; // Solo la declaras
 	public static void main(String[] args) {
 		
 		showMenu();
@@ -44,12 +46,12 @@ public class Main {
 	
 	public static void showMenu() {
 
-		String url = "jdbc:oracle:thin:@opli72.open.com.co:1521/DEVTEC80"; 
+		/*String url = "jdbc:oracle:thin:@opli72.open.com.co:1521/DEVTEC80"; 
         String user = "sfbk0800";
-        String password = "Akda$had#had9857RT";
-		/*String url = "jdbc:oracle:thin:@localhost:1521/FREEPDB1";
+        String password = "Akda$had#had9857RT";*/
+		String url = "jdbc:oracle:thin:@localhost:1521/FREEPDB1";
 		String user = "evergel_dev";
-		String password = "DevPass2026";*/
+		String password = "DevPass2026";
 
         System.out.println("Intentando conectar a Oracle...");
 
@@ -64,6 +66,8 @@ public class Main {
                 DAOManager.getInstance().initialize(con);			// Obtiene la instancia (sino existe la crea) 
 																	// Luego le pasa la imagen 
                 System.out.println("✅ DAOManager inicializado correctamente");
+
+				movies = Movie.makeMoviesList();
                 
                 // Cargar estado de visualización desde la base de datos
                 loadViewedState();
@@ -134,9 +138,9 @@ public class Main {
 		}
 	}
 	
-	// Se encarga de cargar la lista de peliculas
-	static ArrayList<Movie> movies = Movie.makeMoviesList();
+	// Se encarga de cargar la lista de peliculas	
 	public static void showMovies() {
+		
 		int exit = 1;
 		
 		do {
@@ -150,8 +154,12 @@ public class Main {
 				movie.refreshFromDatabase();
 			}
 			
-			for (int i = 0; i < movies.size(); i++) { //1. Movie 1
+			/*for (int i = 0; i < movies.size(); i++) { //1. Movie 1
 				System.out.println(i+1 + ". " + movies.get(i).getTitle() + " Visto: " + movies.get(i).isViewed());
+			}*/
+			//int i = 1;
+			for (Movie movie : movies) {
+				System.out.println(movie.getId() + ". Pelicula: [" + movie.getTitle() + "] - Visto: " + movie.isViewed());
 			}
 			System.out.println("0. Regresar al Menu");
 			System.out.println();
@@ -165,8 +173,9 @@ public class Main {
 				break;
 			}
 			if (response > 0) {
-				Movie movieSelected = movies.get(response-1);
-				movieSelected.view();
+				Movie movieSelected = movies.get(response-1);									// De la lista de peliculas (instanciadas en el aray) obtiene la posicion
+																								// obtiene la seleccionada por el usuario
+				movieSelected.view();															// La marca como vista
 			}
 			
 			

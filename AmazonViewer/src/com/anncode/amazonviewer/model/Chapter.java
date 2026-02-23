@@ -7,7 +7,7 @@ import com.anncode.amazonviewer.dao.DAOManager;
  * Hereda de {@link Movie}
  * @see Film
  */
-public class Chapter extends Movie {
+public class Chapter extends Serie {
 	
 	
 	private int id;

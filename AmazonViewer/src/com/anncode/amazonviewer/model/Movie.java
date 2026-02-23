@@ -2,6 +2,8 @@ package com.anncode.amazonviewer.model;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
+
 import com.anncode.amazonviewer.dao.DAOManager;
 
 /**
@@ -12,20 +14,20 @@ public class Movie extends Film implements IVisualizable {
 	
 	private int id;
 	private int timeViewed;
-	private static int nextId = 1;  // Contador para asignar IDs únicos automáticamente
+	//private static int nextId = 1;  // Contador para asignar IDs únicos automáticamente
 	
 	
-	public Movie(String title, String genre, String creator, int duration, short year) {
+	public Movie(int id, String title, String genre, String creator, int duration, short year) {
 		super(title, genre, creator, duration);
 		setYear(year);
-		this.id = nextId++;  // Asignar ID único y incrementar el contador
+		this.id = id;
+		//this.id = nextId++;  // Asignar ID único y incrementar el contador
 	}
 
 	
 	public int getId() {
 		return id;
 	}
-	
 	
 	public int getTimeViewed() {
 		return timeViewed;
@@ -70,14 +72,17 @@ public class Movie extends Film implements IVisualizable {
 		
 	}
 	
-	public static ArrayList<Movie> makeMoviesList() {
-		ArrayList<Movie> movies = new ArrayList<>();;
+	public static List<Movie> makeMoviesList() {
+		//List<Movie> movies = new ArrayList<>();
+
+
 		
-		for (int i = 1; i <= 5; i++) {
+		/*for (int i = 1; i <= 5; i++) {
 			movies.add(new Movie("Movie " + i, "Genero " + i, "Creador " + i, 120+i, (short)(2017+i)));
-		}
+		}*/
+		return DAOManager.getInstance().getViewedDAO().getListMovies();
 		
-		return movies;
+		//return movies;
 	}
 
 	/**
@@ -86,7 +91,8 @@ public class Movie extends Film implements IVisualizable {
 	 */
 	public void refreshFromDatabase() {
 		try {
-			boolean isViewed = DAOManager.getInstance().getViewedDAO().getMovieViewed(this.id);
+			boolean isViewed = DAOManager.getInstance().getViewedDAO().getMovieViewed(this.id);					// getInstance-> Crea u obtiene la instancia si no existe
+																												// getViewedDAO -> De la instancia, obtiene 
 			setViewed(isViewed);
 		} catch (Exception e) {
 			System.err.println("⚠️ Advertencia: No se pudo recargar el estado de la película desde BD");

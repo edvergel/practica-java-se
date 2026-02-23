@@ -83,10 +83,5 @@ public abstract class Film {
 	 * {@code view()} es un método abstracto obligatorio de implementar
 	 */
 	public abstract void view();
-
-	/*public String toString11() {
-		// TODO Auto-generated method stub
-		throw new UnsupportedOperationException("Unimplemented method 'toString11'");
-	}*/	
 	
 }

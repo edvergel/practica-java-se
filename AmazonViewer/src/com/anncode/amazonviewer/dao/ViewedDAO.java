@@ -5,6 +5,9 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.ArrayList;
+import java.util.List;
+
+import com.anncode.amazonviewer.model.Movie;
 
 /**
  * <h1>ViewedDAO</h1>
@@ -41,6 +44,14 @@ public class ViewedDAO {
     public boolean getMovieViewed(int movieId) {
         return getElementViewed(MATERIAL_MOVIE, movieId);
     }
+
+    /**
+     * Obtiene la lista de peliculas de la BD
+     * @return Lista de peliculas de la BD
+     */
+    public List<Movie> getListMovies() {
+        return getElementListMovie();
+    }
     
     /**
      * Verifica si una serie ha sido vista por el usuario
@@ -76,6 +87,63 @@ public class ViewedDAO {
      */
     public boolean getMagazineViewed(int magazineId) {
         return getElementViewed(MATERIAL_MAGAZINE, magazineId);
+    }
+
+    /**
+     * Metodo que permite consultar la lista de peliculas desde BD
+     * @return Lista de peliculas de la BD
+     */
+    /*private ArrayList<Movie> getElementListMovie(){
+        List<Movie> movies = new ArrayList<>();
+        
+        String query = "select * from movie";
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query)) {
+            
+            ResultSet rs = preparedStatement.executeQuery();
+            
+            if (rs.next()) {
+                isViewed = true;
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("⚠️ Error verificando elemento visto (tipo: " + materialType + ", id: " + elementId + ")");
+            e.printStackTrace();
+        }
+        return movies;
+    }*/
+    
+    private List<Movie> getElementListMovie() { // Cambiado a List (mejor práctica)
+        List<Movie> movies = new ArrayList<>();
+        String query = "SELECT * FROM movie";
+
+        // Try-with-resources: Cierra automáticamente el PreparedStatement y el ResultSet
+        try (PreparedStatement preparedStatement = connection.prepareStatement(query);
+            ResultSet rs = preparedStatement.executeQuery()) {
+            
+            // El bucle WHILE es la clave: se repite por cada fila de la tabla
+            while (rs.next()) {
+                // 1. Extraes los datos de la fila actual del ResultSet
+                int id = rs.getInt("id");
+                String title = rs.getString("title");
+                String genre = rs.getString("genre");
+                String creator = rs.getString("creator");
+                int duration = rs.getInt("duration");
+                short year = rs.getShort("year");
+
+                // 2. Creas el objeto Movie con esos datos
+                Movie movie = new Movie(id, title, genre, creator, duration, year);
+                //movie.setId(id); // Importante setear el ID que viene de la DB
+                
+                // 3. Agregas la película a la lista
+                movies.add(movie);
+            }
+            
+        } catch (SQLException e) {
+            System.err.println("⚠️ Error al obtener la lista de películas");
+            e.printStackTrace();
+        }
+        
+        return movies; // Retorna la lista llena (o vacía si hubo error)
     }
     
     /**

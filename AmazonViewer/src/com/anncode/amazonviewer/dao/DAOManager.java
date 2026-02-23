@@ -31,7 +31,7 @@ public class DAOManager {
      * Obtiene la instancia única de DAOManager
      * @return instancia singleton de DAOManager
      */
-    public static synchronized DAOManager getInstance() {
+    public static synchronized DAOManager getInstance() {       // uso de synchronized para evitar que dos instancias se puedan crear al mismo tiempo
         if (instance == null) {
             instance = new DAOManager();
         }
@@ -43,7 +43,7 @@ public class DAOManager {
      * @param connection Conexión a la base de datos
      */
     public void initialize(Connection connection) {
-        this.connection = connection;                           // Guarda la conexion como un ATRIBUTO DE DAOManager 
+        this.connection = connection;                           // Guarda la conexion como un ATRIBUTO DE DAOManager
         this.viewedDAO = new ViewedDAO(connection);             // Instancia ViewedDAO pasando como parametro la conexion
     }
     
@@ -52,7 +52,7 @@ public class DAOManager {
      * @return instancia de ViewedDAO
      */
     public ViewedDAO getViewedDAO() {
-        return viewedDAO;
+        return viewedDAO;                                       // Es opcional el this.viewedDAO porque no existe una variable dentro de () con el mismo nombre
     }
     
     /**
